@@ -1,0 +1,115 @@
+#include<stdio.h>
+#include<string.h>
+#define MAX_SIZE 10000
+#define MAX_LINE 100
+#define MAX_LEN  256
+
+typedef struct {
+    char data[MAX_LINE][MAX_LEN];
+    int length;
+} SeqList;
+
+SeqList textList; 
+
+//打开文件
+void readFile(){
+	char filename[100];
+	printf("请输入你要打开的文件名");
+	scanf("%s",filename);
+	getchar();
+	FILE*fp=fopen(filename,"r");
+	if(fp==NULL){
+		printf("打开失败，文件不存在\n");
+		return;
+	}
+	textList.length = 0;
+	while (fgets(textList.data[textList.length], MAX_LEN, fp)) {
+	textList.data[textList.length][strcspn(textList.data[textList.length], "\n")] = 0;
+	textList.length++;
+	}
+	fclose(fp);
+	printf("读取成功，内容如下：\n");
+printf("---------------------------------------\n");
+    for (int i = 0; i < textList.length; i++) {
+        printf("%s\n", textList.data[i]);
+    }
+printf("---------------------------------------\n");
+}
+
+//保存文件
+void saveFile(){
+	char filename[100];
+	printf("请输入保存的文件名");
+	scanf("%s",filename);
+	FILE*fp=fopen(filename,"w");
+	if(fp==NULL){
+		printf("保存失败\n");
+		return;
+	}
+    for (int i = 0; i < textList.length; i++) {
+        fprintf(fp, "%s\n", textList.data[i]);
+    }
+
+    fclose(fp);
+    printf("保存成功！\n\n");
+}
+
+//保存后的修改
+void editText(){
+	char filename[100];
+	printf("请输入你要打开的文件名");
+	scanf("%s",filename);
+	FILE*fp=fopen(filename,"r");
+	if(fp==NULL){
+		printf("打开失败，文件不存在\n");
+		return;
+	}
+	textList.length = 0;
+		while (fgets(textList.data[textList.length], MAX_LEN, fp)) {
+		textList.data[textList.length][strcspn(textList.data[textList.length], "\n")] = 0;
+		textList.length++;
+		}
+	fclose(fp);
+	printf("当前内容：\n");
+    printf("---------------------------------------\n");
+    for (int i = 0; i < textList.length; i++) {
+        printf("%s\n", textList.data[i]);
+    }
+    printf("---------------------------------------\n");
+    printf("请输入新的内容(覆盖原内容)\n");
+    textList.length=0;
+    getchar();
+    char line[MAX_LEN];
+	while (1) {
+	    fgets(line, MAX_LEN, stdin);
+	    line[strcspn(line, "\n")] = 0;
+	        if (strlen(line) == 0) {
+	            break;
+	        }
+	    strcpy(textList.data[textList.length], line);
+	    textList.length++;
+	    }
+    printf("修改完成,请手动保存\n");
+}
+
+//主菜单
+int main(){
+	while(1){
+		printf("===========文本处理===========\n");
+		printf("1.读取txt文件\n");
+		printf("2.编辑与修改文本内容\n");
+		printf("3.保存为txt文件\n");
+		printf("0.退出\n");
+		printf("请选择：\n");
+		int choose;
+		scanf("%d",&choose);
+		switch(choose){
+			case 1:readFile();break;
+			case 2:editText();break;
+			case 3:saveFile();break;
+			case 0:return 0;
+			default:printf("输入错误\n请重新输入:\n");break;
+		}
+		
+	}
+}

@@ -1,0 +1,160 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <stdio.h>
+#include <string.h>
+
+using namespace std;
+
+#define MAX_LINE 100
+#define MAX_LEN  256
+
+// 你原来的结构体（完全保留）
+typedef struct {
+    char data[MAX_LINE][MAX_LEN];
+    int length;
+} SeqList;
+
+SeqList textList;
+char currentFile[100] = "";
+bool isSaved = true;
+
+// ===================== 你原来的 C++ 菜单（完全保留） =====================
+void showMenu() {
+    cout << "\n===== 文本编辑器 =====" << endl;
+    cout << "1. 新建文件" << endl;
+    cout << "2. 打开文件" << endl;
+    cout << "3. 编辑内容" << endl;
+    cout << "4. 保存文件" << endl;
+    cout << "5. 退出" << endl;
+    cout << "请选择操作: ";
+}
+
+// ===================== 你原来的 C 函数（几乎完全保留） =====================
+
+// 打开文件
+void readFile() {
+    char filename[100];
+    cout << "请输入你要打开的文件名：";
+    cin >> filename;
+    getchar();
+
+    FILE* fp = fopen(filename, "r");
+    if (fp == NULL) {
+        cout << "打开失败，文件不存在\n";
+        return;
+    }
+
+    textList.length = 0;
+    while (fgets(textList.data[textList.length], MAX_LEN, fp)) {
+        textList.data[textList.length][strcspn(textList.data[textList.length], "\n")] = 0;
+        textList.length++;
+    }
+    fclose(fp);
+
+    // 显示内容
+    cout << "\n读取成功，内容如下：\n";
+    cout << "---------------------------------------\n";
+    for (int i = 0; i < textList.length; i++) {
+        cout << textList.data[i] << endl;
+    }
+    cout << "---------------------------------------\n";
+
+    strcpy(currentFile, filename);
+    isSaved = true;
+}
+
+// 保存文件
+void saveFile() {
+    char filename[100];
+    if (strlen(currentFile) > 0) {
+        strcpy(filename, currentFile);
+    } else {
+        cout << "请输入保存的文件名：";
+        cin >> filename;
+        getchar();
+        strcpy(currentFile, filename);
+    }
+
+    FILE* fp = fopen(filename, "w");
+    if (fp == NULL) {
+        cout << "保存失败\n";
+        return;
+    }
+    for (int i = 0; i < textList.length; i++) {
+        fprintf(fp, "%s\n", textList.data[i]);
+    }
+    fclose(fp);
+    cout << "保存成功！\n";
+    isSaved = true;
+}
+
+// 编辑内容
+void editText() {
+    cout << "\n当前内容：\n";
+    cout << "---------------------------------------\n";
+    for (int i = 0; i < textList.length; i++) {
+        cout << textList.data[i] << endl;
+    }
+    cout << "---------------------------------------\n";
+
+    cout << "请输入新的内容（空行结束）：\n";
+    textList.length = 0;
+    char line[MAX_LEN];
+
+    while (true) {
+        cin.getline(line, MAX_LEN);
+        if (strlen(line) == 0) break;
+        strcpy(textList.data[textList.length], line);
+        textList.length++;
+    }
+    cout << "修改完成，请保存\n";
+    isSaved = false;
+}
+
+// ===================== 唯一 main（融合版） =====================
+int main() {
+    textList.length = 0;
+
+    while (true) {
+        showMenu();
+        int choice;
+        cin >> choice;
+        cin.ignore();
+
+        switch (choice) {
+            case 1:
+                textList.length = 0;
+                currentFile[0] = '\0';
+                isSaved = false;
+                cout << "已新建空白文件。\n";
+                break;
+
+            case 2:
+                readFile();
+                break;
+
+            case 3:
+                editText();
+                break;
+
+            case 4:
+                saveFile();
+                break;
+
+            case 5:
+                if (!isSaved) {
+                    cout << "文件未保存，是否退出？(y/n)：";
+                    char c;
+                    cin >> c;
+                    if (c != 'y' && c != 'Y') break;
+                }
+                cout << "退出程序。\n";
+                return 0;
+
+            default:
+                cout << "无效选项，请重新选择。\n";
+        }
+    }
+}

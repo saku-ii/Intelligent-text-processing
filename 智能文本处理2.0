@@ -9,8 +9,6 @@ using namespace std;
 
 #define MAX_LINE 100
 #define MAX_LEN  256
-
-// 你原来的结构体（完全保留）
 typedef struct {
     char data[MAX_LINE][MAX_LEN];
     int length;
@@ -19,8 +17,6 @@ typedef struct {
 SeqList textList;
 char currentFile[100] = "";
 bool isSaved = true;
-
-// ===================== 你原来的 C++ 菜单（完全保留） =====================
 void showMenu() {
     cout << "\n===== 文本编辑器 =====" << endl;
     cout << "1. 新建文件" << endl;
@@ -30,10 +26,6 @@ void showMenu() {
     cout << "5. 退出" << endl;
     cout << "请选择操作: ";
 }
-
-// ===================== 你原来的 C 函数（几乎完全保留） =====================
-
-// 打开文件
 void readFile() {
     char filename[100];
     cout << "请输入你要打开的文件名：";
@@ -52,8 +44,6 @@ void readFile() {
         textList.length++;
     }
     fclose(fp);
-
-    // 显示内容
     cout << "\n读取成功，内容如下：\n";
     cout << "---------------------------------------\n";
     for (int i = 0; i < textList.length; i++) {
@@ -64,8 +54,6 @@ void readFile() {
     strcpy(currentFile, filename);
     isSaved = true;
 }
-
-// 保存文件
 void saveFile() {
     char filename[100];
     if (strlen(currentFile) > 0) {
@@ -89,8 +77,6 @@ void saveFile() {
     cout << "保存成功！\n";
     isSaved = true;
 }
-
-// 编辑内容
 void editText() {
     cout << "\n当前内容：\n";
     cout << "---------------------------------------\n";
@@ -112,8 +98,6 @@ void editText() {
     cout << "修改完成，请保存\n";
     isSaved = false;
 }
-
-// ===================== 唯一 main（融合版） =====================
 int main() {
     textList.length = 0;
 

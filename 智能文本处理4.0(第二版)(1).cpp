@@ -10,35 +10,35 @@
 #define KEYWORD_MAX 5
 #define ERR_COUNT (sizeof(errLib)/sizeof(ErrDict))
 
-// 原顺序表结构（存储文本）
+//顺序表结构（存储文本）
 typedef struct {
     char data[MAX_LINE][MAX_LEN];
     int length;
 } SeqList;
 SeqList textList; 
 
-// 原栈结构（用于回退）
+//栈结构（回退）
 typedef struct{
 	SeqList data[STACK_MAX];
 	int top;
 }Stack;
 Stack undoStack;
-Stack correctUndoStack; // 专门存储纠错前的文本状态
+Stack correctUndoStack; // 存储纠错前的文本状态
 
-// 修改：支持中文纠错的错误字典结构（中文占2字节，保留字符数组兼容）
+//支持中文纠错的错误字典结构
 typedef struct {
-    char wrong[MAX_LEN];   // 错误写法（中文/英文）
-    char right[MAX_LEN];   // 正确写法（中文/英文）
+    char wrong[MAX_LEN];   //错误写法
+    char right[MAX_LEN];   //正确写法
 } ErrDict;
 
-// 二叉搜索树结构（存储纠错字典，用于快速查找）
+//二叉搜索树结构（存储纠错字典）
 typedef struct BSTNode {
-    ErrDict dict;          // 存储错误-正确写法对
-    struct BSTNode *lchild;// 左孩子
-    struct BSTNode *rchild;// 右孩子
+    ErrDict dict;          
+    struct BSTNode *lchild;
+    struct BSTNode *rchild;
 } BSTNode, *BSTree;
 
-// 新增：中文纠错字典（替换原英文纠错库，保留英文兼容）
+// 新增：中/英文纠错字典
 ErrDict errLib[] = {
     {"既将", "即将"},
     {"好象", "好像"},
@@ -61,7 +61,7 @@ ErrDict errLib[] = {
 	{"decieve","deceive"}
 };
 
-// 原栈操作函数（不变）
+// 栈操作函数
 void InitStack(Stack*s)
 {
 	s->top=-1;
@@ -99,7 +99,7 @@ int Pop(Stack*s,SeqList*res)
 	return 1;
 }
 
-// 原分类关键词（不变）
+//分类关键词
 char categories[CATEGORY_NUM][20] = {"工作", "学习", "生活"};
 char keywords[CATEGORY_NUM][KEYWORD_MAX][20] = {
     {"任务", "目标", "会议", "沟通", "效率"},
@@ -108,7 +108,7 @@ char keywords[CATEGORY_NUM][KEYWORD_MAX][20] = {
 };
 int keywordCount[CATEGORY_NUM] = {5,5,5};
 
-// 原BF算法（适配中文：按字符匹配，中文占2字节不影响BF逻辑）
+//BF算法（中文）
 int BF(char *str, char *sub)
 {
     int i = 0, j = 0;
@@ -130,7 +130,7 @@ int BF(char *str, char *sub)
     return j == lenT ? 1 : 0;
 }
 
-// 原KMP算法（不变）
+//KMP算法
 void getNext(char *sub, int next[])
 {
     int len = strlen(sub);
@@ -170,7 +170,7 @@ int KMP(char *str, char *sub)
     return j == lenT ? 1 : 0;
 }
 
-// 原BF/KMP效率对比（不变）
+//BF/KMP效率对比
 void compareBFKMP() {
     if (textList.length == 0) {
         printf("当前无文本数据，无法对比效率！\n");
@@ -218,12 +218,12 @@ void compareBFKMP() {
     printf("=============================================\n\n");
 }
 
-// 原文本备份（不变）
+//文本备份
 void backupText(){
 	Push(&undoStack,textList);
 }
 
-// 原文本回退（不变）
+//文本回退
 void undoText(){
 	SeqList oldState;
 	if(Pop(&undoStack,&oldState))
@@ -240,7 +240,7 @@ void undoText(){
 	}
 }
 
-// 原自动保存（不变）
+//自动保存
 void autoSave(char filename[]){
 	FILE*fp=fopen(filename,"w");
 	if(fp==NULL){
@@ -254,15 +254,15 @@ void autoSave(char filename[]){
 	printf("已自动保存到原文件！\n ");
 }
 
-// 原新建文件（不变）
+//新建文件
 void newFile(){
 	textList.length=0;
 	InitStack(&undoStack);
-    InitStack(&correctUndoStack); // 初始化纠错回退栈
+    InitStack(&correctUndoStack); 
 	printf("新建空白文本成功！可直接编辑后保存为文件使用。\n");
 }
 
-// 原删除文件（不变）
+//删除文件
 void deleteWholeFile(){
 	char filename[100];
 	printf("请输入要删除的文件名：");
@@ -273,7 +273,7 @@ void deleteWholeFile(){
 	    printf("删除失败！文件不存在或被占用！\n");
 }
 
-// 原读取文件（不变）
+//读取文件
 void readFile(){
 	char filename[100];
 	printf("请输入要打开的文件名：");
@@ -298,7 +298,7 @@ printf("---------------------------------------\n");
 printf("---------------------------------------\n");
 }
 
-// 原保存文件（不变）
+//保存文件
 void saveFile(){
 	char filename[100];
 	printf("请输入保存的文件名：");
@@ -315,7 +315,7 @@ void saveFile(){
     printf("保存成功！\n\n");
 }
 
-// 原BF分类（不变）
+//BF分类
 void classByBF()
 {
     if (textList.length == 0)
@@ -357,7 +357,7 @@ void classByBF()
     printf("=====================================\n\n");
 }
 
-// 原KMP分类（不变）
+//KMP分类
 void classByKMP()
 {
     if (textList.length == 0)
@@ -417,7 +417,7 @@ void editWhole(char filename[]){
 	    printf("内容修改成功！\n");
 }
 
-// 原行修改（不变）
+//逐行修改
 void modifyLine(char filename[]){
 	printf("当前数据：\n");
 	printf("---------------------------------------\n");
@@ -447,7 +447,7 @@ void modifyLine(char filename[]){
 	printf("修改成功！\n");
 }
 
-// 原行删除（不变）
+//逐行删除
 void deleteLine(char filename[]){
 	printf("当前数据：\n");
 	printf("---------------------------------------\n");
@@ -476,7 +476,7 @@ void deleteLine(char filename[]){
 	printf("删除成功！\n");
 }
 
-// 原大小写修正（不变）
+//英文大小写修正
 void FixSingleLine(char line[])
 {
     int len = strlen(line);
@@ -507,7 +507,7 @@ void FixSingleLine(char line[])
 	}
 }
 
-// 原智能修正（不变）
+//文本智能修正
 void IntelligentFix()
 {
 	if(textList.length == 0)
@@ -526,10 +526,9 @@ void IntelligentFix()
 	getchar();
 }
 
-// 原二叉搜索树初始化（适配中文：按字符串ASCII码排序，中文兼容）
+//二叉搜索树初始化（中文）
 void InitBST(BSTree *T) {
     *T = NULL;
-    // 加载纠错字典到二叉搜索树
     for (int i = 0; i < ERR_COUNT; i++) {
         BSTNode *newNode = (BSTNode *)malloc(sizeof(BSTNode));
         strcpy(newNode->dict.wrong, errLib[i].wrong);
@@ -541,7 +540,6 @@ void InitBST(BSTree *T) {
             continue;
         }
 
-        // 二叉搜索树插入逻辑：按错误字符串字典序比较
         BSTNode *p = *T, *parent = NULL;
         while (p != NULL) {
             parent = p;
@@ -551,7 +549,7 @@ void InitBST(BSTree *T) {
             } else if (cmp > 0) {
                 p = p->rchild;
             } else {
-                free(newNode); // 已存在，释放重复节点
+                free(newNode);
                 break;
             }
         }
@@ -566,29 +564,27 @@ void InitBST(BSTree *T) {
     }
 }
 
-// 原二叉搜索树查找（适配中文：字符串匹配）
+//二叉搜索树查找（中文）
 BSTNode *BSTSearch(BSTree T, char *key) {
     BSTNode *p = T;
     while (p != NULL) {
         int cmp = strcmp(key, p->dict.wrong);
         if (cmp == 0) {
-            return p; // 找到匹配的错误写法
+            return p; 
         } else if (cmp < 0) {
             p = p->lchild;
         } else {
             p = p->rchild;
         }
     }
-    return NULL; // 未找到
+    return NULL;
 }
 
-// 改造：中文分词（按字符遍历匹配，兼容中文短语）
+//中文分词（字符遍历）
 void splitChinesePhrases(char *line, char phrases[][MAX_LEN], int *phraseCount) {
     *phraseCount = 0;
     char temp[MAX_LEN] = {0};
     int idx = 0;
-
-    // 遍历每行文本，按“非空字符”提取短语（适配中文连续字符）
     for (int i = 0; line[i] != '\0'; i++) {
         if (line[i] != ' ' && line[i] != '\t' && line[i] != '\n') {
             temp[idx++] = line[i];
@@ -602,7 +598,6 @@ void splitChinesePhrases(char *line, char phrases[][MAX_LEN], int *phraseCount) 
             }
         }
     }
-    // 处理最后一个短语
     if (idx > 0) {
         temp[idx] = '\0';
         strcpy(phrases[*phraseCount], temp);
@@ -610,16 +605,14 @@ void splitChinesePhrases(char *line, char phrases[][MAX_LEN], int *phraseCount) 
     }
 }
 
-// 改造：中文纠错核心逻辑（兼容英文）
 void correctSpelling() {
     if (textList.length == 0) {
         printf("无文本数据，无法进行纠错！\n");
         return;
     }
 
-    // 纠错前备份到专门的回退栈
+    // 纠错前备份到回退栈
     Push(&correctUndoStack, textList);
-
     // 初始化纠错二叉搜索树
     BSTree errTree;
     InitBST(&errTree);
@@ -627,35 +620,31 @@ void correctSpelling() {
     printf("====开始中文/英文纠错====\n");
     for (int i = 0; i < textList.length; i++) {
         char lineCopy[MAX_LEN];
-        strcpy(lineCopy, textList.data[i]); // 复制原行避免修改过程中干扰
+        strcpy(lineCopy, textList.data[i]); 
         char phrases[MAX_LEN][MAX_LEN];
         int phraseNum = 0;
-        
-        // 拆分中文短语（按空格/制表符分割）
+        // 拆分中文短语（分割）
         splitChinesePhrases(lineCopy, phrases, &phraseNum);
-
         // 逐短语匹配纠错字典
         char newLine[MAX_LEN] = "";
         for (int j = 0; j < phraseNum; j++) {
             BSTNode *found = BSTSearch(errTree, phrases[j]);
             if (found != NULL) {
-                // 找到错误写法，替换为正确写法
                 strcat(newLine, found->dict.right);
                 printf("第%d行：%s → %s\n", i+1, phrases[j], found->dict.right);
             } else {
-                // 无错误，保留原内容
                 strcat(newLine, phrases[j]);
             }
             if (j != phraseNum - 1) {
-                strcat(newLine, " "); // 还原空格分隔
+                strcat(newLine, " "); 
             }
         }
-        strcpy(textList.data[i], newLine); // 更新文本行
+        strcpy(textList.data[i], newLine); 
     }
     printf("====纠错完成！====\n");
 }
 
-// 原纠错回退（不变）
+//纠错回退
 void undoCorrect() {
     SeqList oldState;
     if (Pop(&correctUndoStack, &oldState)) {
@@ -669,9 +658,9 @@ void undoCorrect() {
     }
 }
 
-// 新增：智能更正后自动保存（指定文件，支持回退）
+// 新增：智能更正后自动保存（可回退）
 void autoSaveAfterCorrect(char filename[]) {
-    // 1. 保存纠错后的内容到文件
+    //保存纠错后的内容到文件
     FILE *fp = fopen(filename, "w");
     if (fp == NULL) {
         printf("纠错后自动保存失败！\n");
@@ -682,29 +671,29 @@ void autoSaveAfterCorrect(char filename[]) {
     }
     fclose(fp);
     
-    // 2. 生成“原文备份文件”（filename + _bak）
+    // 生成"原文备份文件"
     char bakFilename[MAX_LEN];
     sprintf(bakFilename, "%s_bak.txt", filename);
     SeqList oldState;
-    if (Pop(&correctUndoStack, &oldState)) { // 临时取出原文
+    if (Pop(&correctUndoStack, &oldState)) { 
         FILE *bakFp = fopen(bakFilename, "w");
         if (bakFp != NULL) {
             for (int i = 0; i < oldState.length; i++) {
                 fprintf(bakFp, "%s\n", oldState.data[i]);
             }
             fclose(bakFp);
-            Push(&correctUndoStack, oldState); // 放回回退栈
-            printf("? 纠错后自动保存到：%s\n", filename);
-            printf("? 原文已备份到：%s（可通过回退功能恢复）\n", bakFilename);
+            Push(&correctUndoStack, oldState); 
+            printf("纠错后自动保存到：%s\n", filename);
+            printf("原文已备份到：%s（可通过回退功能恢复）\n", bakFilename);
         } else {
-            printf("? 原文备份失败！\n");
+            printf("原文备份失败！\n");
         }
     } else {
-        printf("? 纠错后自动保存到：%s（无原文备份）\n", filename);
+        printf("纠错后自动保存到：%s（无原文备份）\n", filename);
     }
 }
 
-// 原编辑菜单（不变，仅适配自动保存逻辑）
+//编辑菜单
 void editText(){
 	char filename[100];
 	printf("请输入要编辑的文件名：");
@@ -728,8 +717,8 @@ void editText(){
 		printf("4.撤销上一次修改\n");
 		printf("5.智能大小写修正\n");
 		printf("6.保存文件\n");
-        printf("7.中文/英文纠错\n");  // 适配中文纠错
-        printf("8.回退纠错前原文\n");// 回退功能
+        printf("7.中文/英文纠错\n");  
+        printf("8.回退纠错前原文\n");
 		printf("0.退出编辑菜单\n");
 		printf("==============================\n");
 		printf("请选择功能：\n");
@@ -751,7 +740,7 @@ void editText(){
 	}
 }
 
-// 主函数（不变）
+//主函数
 int main(){
     InitStack(&undoStack);
     InitStack(&correctUndoStack);
